@@ -6,21 +6,24 @@ const Joi = require('joi');
 
 module.exports = {
   method: 'GET',
-  path: '/account/{accountNumber}/checkBalance',
+  path: '/accounts/{accountNumber}/checkBalance',
   options: {
     tags: ['api'],
     validate: {
       params: Joi.object({
         accountNumber: Joi.number().required()
       }),
-      failAction: (request, h, error) =>
+      failAction: (request, h, error) => console.log('test') ||
         Boom.boomify(error)
     },
     handler: async request => {
       try {
         const { accountService } = request.services();
+        console.log('PARAMS',request);
 
         const { params } = request;
+
+        console.log('PARAMS',params);
 
         const accountBalance = await accountService.checkBalance(
           params.accountNumber
@@ -29,7 +32,7 @@ module.exports = {
         return accountBalance;
       }
       catch (error) {
-        return error;
+        throw error;
       }
     }
   }

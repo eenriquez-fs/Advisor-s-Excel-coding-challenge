@@ -33,6 +33,22 @@ module.exports = new Confidence.Store({
         request: ['implementation']
       }
     },
+    routes: {
+      timeout: {
+        socket: 60000 * 5
+      },
+      cors: {
+        origin: ['*'],
+        additionalHeaders: ['cache-control', 'x-requested-with'],
+        headers: [
+          'Accept',
+          'Authorization',
+          'Content-Type',
+          'If-None-Match',
+          'Credentials'
+        ]
+      }
+    }
   },
   register: {
     plugins: [

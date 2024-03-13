@@ -6,3 +6,6 @@ node_modules
 .test.env
 *.log*
 .vscode/
+.ui/.next*
+/.next/
+.next/

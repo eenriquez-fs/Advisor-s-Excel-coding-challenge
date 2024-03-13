@@ -14,7 +14,7 @@ module.exports = {
     tags: ['api'],
     validate: {
       payload: Joi.object({
-        accountNumber: Joi.number().required(),
+        account_number: Joi.number().required(),
         amount: Joi.number().required().max(1000).min(0)
       }),
       failAction: (request, h, err) => {

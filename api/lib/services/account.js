@@ -59,7 +59,7 @@ module.exports = class AccountService extends Schmervice.Service {
                                              .reduce((totalWithdrawal, {amount}) => totalWithdrawal + amount, 0)
 
     // if(userAccount.type !== 'credit' && totalWithdrawalsToday > 400) { if this requirement is only limited to non credit customers
-    if( totalWithdrawalsToday > 400 ) { // given this limitation applies to all account types
+    if( totalWithdrawalsToday + amount > 400 ) { // given this limitation applies to all account types
       throw Boom.badRequest('You have exceeded your daily trx limit! ($400)'); // TODO put the limit to a constant?
     }
 
