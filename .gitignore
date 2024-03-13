@@ -1,0 +1,8 @@
+node_modules
+.tmp
+#.env disabled since this is just a coding exam forreal world we should not commit .env
+#.env* disabled since this is just a coding exam forreal world we should not commit .env
+.DS_Store
+.test.env
+*.log*
+.vscode/
