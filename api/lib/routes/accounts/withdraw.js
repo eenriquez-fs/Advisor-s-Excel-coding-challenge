@@ -15,7 +15,7 @@ module.exports = {
     validate: {
       payload: Joi.object({
         accountNumber: Joi.number().required(),
-        // amount: Joi.number().required().max(1000).min(0)
+        amount: Joi.number().required().max(200).min(0)
       }),
       failAction: (request, h, err) => {
         // Custom error response
@@ -28,11 +28,8 @@ module.exports = {
 
         const { accountService } = request.services();
 
-        // auth!!
-        // const form = await formService.getById(params.id);
-
-
-        // return form;
+        const resp = await accountService.withdraw(accountNumber, amount);
+        return resp;
       }
       catch (error) {
         return Boom.boomify(error);

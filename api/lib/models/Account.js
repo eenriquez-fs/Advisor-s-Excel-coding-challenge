@@ -19,8 +19,19 @@ module.exports = class Account extends Schwifty.Model {
     credit_limit: Joi.number().integer(),
     created_at: Joi.date(),
     updated_at: Joi.date()
-  }).label('Form');
+  }).label('Account');
 
   static get relationMappings() {
+    const AccountWithdrawal = require('./AccountWithdrawal');
+    return {
+      accountWithdrawals: {
+        relation: Schwifty.Model.HasManyRelation,
+        modelClass: AccountWithdrawal,
+        join: {
+          from: 'accounts.account_number',
+          to: 'account_withdrawals.account_number'
+        }
+      }
+    };
   }
 };

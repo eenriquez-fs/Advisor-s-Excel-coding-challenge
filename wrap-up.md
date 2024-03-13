@@ -6,6 +6,7 @@
 
 ### If you were to continue building this out, what would you like to add next?
 - unit tests
+- amount should have been named as balance in the account table
 
 ### If you have any other comments or info you'd like the reviewers to know, please add them below.
 

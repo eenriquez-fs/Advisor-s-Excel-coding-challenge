@@ -24,7 +24,73 @@ module.exports = class AccountService extends Schmervice.Service {
   }
 
 
-  //withdraw
+  /*
+    withdraw
+    can only withdraw $200 per transaction
+    can only withdraw $400 per day
+    can only withdraw in multiples of 5
+    non credit account types: canNOT withdraw more than what they have in their account ()
+    credit account type: canNOT withdraw more than the credit limit
+  */
+  async withdraw(accountNumber, amount) {
+    const { raw } = require('objection');
+    const {
+      Account: AccountModel,
+      AccountWithdrawal: AccountWithdrawalModel
+    } = this.server.models();
+
+    if(amount % 5 !== 0) {
+      throw Boom.badRequest('Withdrawals should be in multiples of $5!');
+    }
+
+    if(amount > 200) {
+      throw Boom.badRequest('amount exceeded trx limit ($200)');
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const userAccount = await AccountModel.query()
+                                    .findById(accountNumber)
+                                    .withGraphFetched('accountWithdrawals')
+                                    .modifyGraph('accountWithdrawals', builder => {
+                                      builder.where(raw('DATE(created_at) = ?', today));
+                                    })
+    const totalWithdrawalsToday = userAccount.accountWithdrawals
+                                             .reduce((totalWithdrawal, {amount}) => totalWithdrawal + amount, 0)
+
+    // if(userAccount.type !== 'credit' && totalWithdrawalsToday > 400) { if this requirement is only limited to non credit customers
+    if( totalWithdrawalsToday > 400 ) { // given this limitation applies to all account types
+      throw Boom.badRequest('You have exceeded your daily trx limit! ($400)'); // TODO put the limit to a constant?
+    }
+
+    // non-credit account
+    if(userAccount.type !== 'credit' && amount > userAccount.amount) {
+      throw Boom.badRequest('your balance is less than the requested amount')
+    }
+
+    if(userAccount.type === 'credit' && amount + Math.abs(userAccount.amount) > userAccount.credit_limit) {
+      throw Boom.badRequest('requested amount exceeds your credit limit')
+    }
+
+    const updatedBalance = userAccount.amount - amount;
+    return AccountModel.transaction(async (trx) => {
+      await userAccount.$query(trx).patch({
+        amount: updatedBalance
+      })
+
+      await AccountWithdrawalModel.query(trx).insert({
+        account_number: accountNumber,
+        amount,
+      })
+
+      return {
+        accountNumber: userAccount.account_number,
+        amount: userAccount.amount,
+        type: userAccount.type,
+        ...(userAccount.type === 'credit' ? {creditLimit: userAccount.credit_limit} : {})
+      };
+    });
+  }
 
 
   /*
@@ -59,7 +125,4 @@ module.exports = class AccountService extends Schmervice.Service {
 
     return userAccount;
   }
-
-
-  // getDailyTotalWithdrawal
 };
